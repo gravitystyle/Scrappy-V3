@@ -7,6 +7,8 @@ from itertools import cycle
 import traceback
 from bs4 import BeautifulSoup
 import json
+import pickle
+
 
 def get_proxies():
 	url = 'https://free-proxy-list.net/'
@@ -42,16 +44,39 @@ def createUrls(categories, licenses): # create a dictionnary of the research Url
 	return urls
 
 
+def exportInJson(fileName, data): # export the data in a json file
+	with open(fileName,'w') as f:
+		f.write(json.dumps(data))
 
-categories = readFile('categories.json')
-licenses = readFile('licenses.json')
-urls = createUrls(categories,licenses)
 
 
+def saveUrlDictionary(fileName, data): # export the data in a json file
+	with open(fileName, 'wb') as f:
+		pickle.dump(data, f)
+
+def importUrlDictionary(fileName):
+	with open(fileName, 'rb') as f:
+		data = pickle.load(f)
+	return data
+
+def collectWebData(url):
+	response = requests.get(url).text #Add the proxy here: proxies={"http": proxy, "https": proxy}
+	soup = BeautifulSoup(response,'html.parser')
+	webData = soup.find(id='s-result-count')
+
+	return webData.contents[0]
+
+# categories = readFile('categories.json')
+# licenses = readFile('licenses.json')
+# urls = createUrls(categories,licenses)
+# urlGetBack = importUrlDictionary('test.url')
 
 # proxies = get_proxies()
 # print(proxies)
 # proxy_pool = cycle(proxies)
+url='https://www.amazon.fr/s/ref=nb_sb_noss_1?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&url=search-alias%3Daps&field-keywords=mug+spider+man'
+texte = collectWebData(url)
+print(texte)
 
 
 # url = 'https://httpbin.org/ip'
